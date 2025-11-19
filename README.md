@@ -5,3 +5,6 @@ The role of driver distraction in the occurrence of road traffic accidents is of
 
 The process involves two main stages. The first stage focuses on feature extraction (a to c), while the second stage employs batch-wise density-based clustering using HDBSCAN in the latent space to generate weights for a weighted random sampler (d to f).
 
+![Methodology of the Clustered Feature Weighting](img/cfw_method.png)
+
+The paper is accepted at ITSC 2025 (https://ieee-itsc.org/2025/)
