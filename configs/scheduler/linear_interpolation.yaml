@@ -1,0 +1,10 @@
+# Linear Interpolation LR Scheduler Configuration
+# Linearly decays learning rate from start_lr to end_lr over training
+
+name: LinearInterpolationLR
+scheduler_type: linear_interpolation
+
+# Parameters
+start_lr: ${optimizer.lr}  # Initial learning rate (defaults to optimizer lr)
+end_lr: 0.0002  # Final learning rate at end of training (default for CFW experiments)
+num_epochs: ${trainer.num_epochs}  # Total number of epochs for decay

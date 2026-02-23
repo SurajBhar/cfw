@@ -1,0 +1,49 @@
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+type: pipeline
+experiment_name: cfw-data-pipeline
+description: >-
+  Data pipeline (run infrequently): ingestion + dataset generation + optional EDA.
+settings:
+  default_compute: azureml:cfwcluster
+
+inputs:
+  enable_download:
+    type: boolean
+    default: true
+  enable_eda:
+    type: boolean
+    default: true
+  max_workers:
+    type: integer
+    default: 8
+  seed:
+    type: integer
+    default: 42
+
+outputs:
+  raw_data:
+    type: uri_folder
+  processed_data:
+    type: uri_folder
+  artifacts_data:
+    type: uri_folder
+
+jobs:
+  run_ingestion:
+    type: command
+    code: ../../
+    environment: azureml:cfw-dinov2-cu118:2
+    command: >-
+      python scripts/data_ingestion/run_full_pipeline.py
+      storage=local
+      storage.paths.raw=${{outputs.raw_data}}
+      storage.paths.processed=${{outputs.processed_data}}
+      storage.paths.artifacts=${{outputs.artifacts_data}}
+      pipeline.stages.0.enabled=${{parent.inputs.enable_download}}
+      pipeline.stages.4.enabled=${{parent.inputs.enable_eda}}
+      processing.max_workers=${{parent.inputs.max_workers}}
+      processing.seed=${{parent.inputs.seed}}
+    outputs:
+      raw_data: ${{parent.outputs.raw_data}}
+      processed_data: ${{parent.outputs.processed_data}}
+      artifacts_data: ${{parent.outputs.artifacts_data}}

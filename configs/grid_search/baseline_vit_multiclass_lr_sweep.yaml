@@ -1,0 +1,55 @@
+# @package _global_
+
+# Grid Search: ViT-B/16 Baseline - Learning Rate Sweep
+# Drive&Act Multiclass (34 classes) Split 0
+# Run with: python scripts/train.py -m experiment=grid_search/baseline_vit_multiclass_lr_sweep
+
+defaults:
+  - override /dataset: driveact_multiclass
+  - override /model: vit_b_16
+  - override /dataloader: baseline
+  - override /trainer: single_gpu
+  - override /augmentation: no_aug
+
+# Experiment name
+experiment:
+  name: gs_baseline_vit_multiclass_lr_sweep
+  seed: 42
+
+# Dataset paths - Drive&Act Multiclass RGB Split 0
+# Original paths from server (to be updated with your actual paths)
+dataset:
+  data_root: ${oc.env:CFW_DRIVEACT_MULTICLASS_SPLIT0_DIR,./data/processed/daa_multiclass_kinect_color/split_0}
+  train_dir: ${dataset.data_root}/train
+  val_dir: ${dataset.data_root}/val
+  test_dir: ${dataset.data_root}/test
+  num_classes: 34
+
+# Dataloader settings
+dataloader:
+  batch_size: 1024
+
+# Training settings - shorter epochs for grid search
+trainer:
+  num_epochs: 80
+  device: 0
+
+# Hardware settings
+hardware:
+  num_workers: 10
+  prefetch_factor: 4
+
+# ============================================
+# HYDRA SWEEP CONFIGURATION
+# Run with: python scripts/train.py -m experiment=grid_search/baseline_vit_multiclass_lr_sweep
+# ============================================
+hydra:
+  mode: MULTIRUN
+  sweeper:
+    params:
+      # Learning rate sweep (matching original grid search)
+      optimizer.lr: 0.003,0.01,0.03,0.06
+      # Optimizer sweep
+      optimizer: adam,sgd
+      # Scheduler sweep
+      scheduler: cosine_annealing,linear_interpolation,exponential_decay,lambda_step

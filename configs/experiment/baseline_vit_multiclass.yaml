@@ -1,0 +1,44 @@
+# @package _global_
+
+# Baseline Experiment: ViT-B/16 on Multi-Class Classification
+# Standard dataloader (Dataloader A) with random sampling
+
+defaults:
+  - override /dataset: driveact_multiclass
+  - override /model: vit_b_16
+  - override /dataloader: baseline
+  - override /trainer: single_gpu
+  - override /optimizer: adam
+  - override /scheduler: cosine_annealing
+  - override /augmentation: standard_aug
+
+# Experiment name
+experiment:
+  name: baseline_vit_b_16_driveact_multiclass
+  seed: 42
+
+# Dataset paths (env-driven with local fallback)
+dataset:
+  data_root: ${oc.env:CFW_DRIVEACT_MULTICLASS_SPLIT0_DIR,./data/processed/daa_multiclass_kinect_color/split_0}
+  train_dir: ${dataset.data_root}/train
+  val_dir: ${dataset.data_root}/val
+  test_dir: ${dataset.data_root}/test
+
+# Dataloader settings
+dataloader:
+  batch_size: 1024  # batch size for multi-class
+
+# Training settings
+trainer:
+  num_epochs: 100
+  device: 0
+
+# Optimizer settings
+optimizer:
+  lr: 0.0004  # Lower learning rate for multi-class
+  weight_decay: 0.0001
+
+# Scheduler settings
+scheduler:
+  T_max: ${trainer.num_epochs}
+  eta_min: 0.0

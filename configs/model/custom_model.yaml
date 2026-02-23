@@ -1,0 +1,26 @@
+# Custom Model Configuration Template
+# Copy this file and modify for your custom model
+
+name: custom_model
+model_type: custom  # Options: dinov2, vit, resnet, custom
+
+# Model architecture
+backbone: your_backbone_name  # Register this in src/cfw/models/registry.py
+embedding_dim: 768  # Output dimension of backbone
+patch_size: null  # If applicable
+
+# Classification head
+head_type: linear  # Options: linear, mlp
+hidden_dims: []  # For MLP head: [512, 256]
+dropout: 0.0
+
+# Model initialization
+pretrained: true
+freeze_backbone: false
+
+# Output
+num_classes: ${dataset.num_classes}
+
+# Custom model-specific parameters
+# Add your custom parameters here
+# example_param: value

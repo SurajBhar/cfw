@@ -1,0 +1,117 @@
+# Base Hydra Configuration for CFW
+# This is the main entry point for all experiments
+
+defaults:
+  - dataset: driveact_binary
+  - model: dinov2_vitb14
+  - dataloader: baseline
+  - trainer: single_gpu
+  - optimizer: adam
+  - scheduler: cosine_annealing
+  - augmentation: standard_aug
+  - hardware: default
+  - runtime: local
+  - _self_
+  # Optional experiment presets (allows `experiment=<name>` without `+`)
+  - optional experiment: null
+
+# Experiment metadata
+experiment:
+  name: ${dataset.name}_${model.name}_${dataloader.type}
+  seed: 42
+  output_dir: ./outputs/${experiment.name}/${now:%Y-%m-%d_%H-%M-%S}
+
+# Logging configuration
+logging:
+  log_level: INFO
+  log_to_file: true
+  log_to_console: true
+  tensorboard: true
+  tensorboard_log_dir: ${experiment.output_dir}/tensorboard
+
+# Checkpoint configuration
+checkpoint:
+  save_dir: ${experiment.output_dir}/checkpoints
+  save_frequency: 5  # Save every N epochs
+  save_best_only: false
+  monitor_metric: val_balanced_accuracy
+  mode: max  # max for accuracy, min for loss
+
+# Reproducibility
+reproducibility:
+  deterministic: false  # Set to true for full reproducibility (may slow down training)
+  benchmark: true  # Set to false for full reproducibility
+
+# Hardware
+hardware:
+  num_workers: 4  # Number of data loading workers
+  pin_memory: true
+  persistent_workers: false
+
+# Feature analysis (used by scripts/extract_features.py)
+feature_analysis:
+  # Large scale mode switches analysis compute to float32 and disables
+  # expensive optional sanity metrics unless explicitly enabled.
+  large_scale_mode: false
+  # Optional embedding normalization prior to analysis: none | l2
+  normalize: none
+  # kNN metric for holdout sanity check: euclidean | cosine
+  knn_metric: euclidean
+  # Nearest-centroid evaluation mode:
+  # - holdout: centroids fit on train subset, evaluated on held-out subset
+  # - in_sample: centroids + evaluation on full set (optimistic)
+  nearest_centroid_mode: holdout
+  # Distance metric for nearest-centroid sanity check: euclidean | cosine
+  nearest_centroid_metric: euclidean
+  # Test fraction for holdout sanity checks (nearest-centroid + kNN)
+  nearest_centroid_test_size: 0.2
+  enable_knn: null
+  enable_silhouette: null
+  knn_k: 10
+  silhouette_max_samples: 5000
+  pair_samples: 30000
+
+# Feature extraction loader behavior (used by scripts/extract_features.py)
+feature_extraction:
+  # Stage-1 CFW loading should be randomized to match training-like sampling.
+  shuffle: true
+  # Keep all samples while extracting embeddings unless explicitly overridden.
+  drop_last: false
+
+# Dataloader evaluation settings (used by scripts/eval_dataloader.py)
+dataloader_eval:
+  # Needed for path-level diagnostics (unique coverage, concentration plots)
+  return_paths: true
+  plots:
+    # Existing comparison plots
+    kl_trend_with_uniform: true
+    kl_box_comparison: true
+    mean_batch_distribution: true
+    cumulative_unique_samples: true
+
+    # Additional KL / distribution diagnostics
+    kl_histogram_overlay: true
+    kl_ecdf: true
+    kl_rolling_mean: true
+    batch_entropy_trend: true
+    per_class_uniform_deviation: true
+
+    # Complex / heavier plots (opt-in)
+    enable_complex: false
+    class_by_batch_heatmaps: false
+    cfw_weight_vs_sampling_frequency: false
+    sampling_concentration_lorenz: false
+
+    # Plot hyperparameters
+    rolling_window: 10
+    histogram_bins: 20
+
+# Hydra configuration
+hydra:
+  run:
+    dir: ${experiment.output_dir}
+  sweep:
+    dir: ./outputs/multirun/${now:%Y-%m-%d_%H-%M-%S}
+    subdir: ${hydra.job.num}
+  job:
+    chdir: false  # Don't change working directory

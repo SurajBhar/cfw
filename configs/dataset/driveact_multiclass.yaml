@@ -1,0 +1,63 @@
+# Drive&Act Dataset - Multi-Class Configuration
+# 34 activity classes (0-33)
+
+name: driveact_multiclass
+dataset_type: multiclass
+is_binary: false
+
+# Dataset paths (env-driven with local fallback)
+data_root: ${oc.env:CFW_DRIVEACT_MULTICLASS_SPLIT0_DIR,./data/processed/daa_multiclass_kinect_color/split_0}
+train_dir: ${dataset.data_root}/train
+val_dir: ${dataset.data_root}/val
+test_dir: ${dataset.data_root}/test
+
+# Dataset properties
+num_classes: 34
+
+# Class names from Drive&Act dataset
+class_names:
+  - not_distracted
+  - adjust_control_elements
+  - arm_on_window
+  - bend_forward
+  - card_payment
+  - close_bottle
+  - close_laptop
+  - close_side_door
+  - drink
+  - enter_card_PIN
+  - fasten_seatbelt
+  - fetch_object_from_back
+  - fold_sunvisor
+  - hand_on_gear
+  - hands_in_lap
+  - laptop_working
+  - lean_back
+  - look_back
+  - look_over_shoulder
+  - open_backpack
+  - open_bottle
+  - open_door
+  - open_laptop
+  - open_side_door
+  - operate_touchscreen
+  - passenger_talks
+  - prepare_food
+  - reach_object_back
+  - sit_still
+  - talk_on_phone
+  - text
+  - unfasten_seatbelt
+  - write
+  - yawn
+
+# Image properties
+image_size: 224
+file_extensions:
+  - png
+  - jpg
+  - jpeg
+
+# Data statistics (for normalization)
+mean: [0.485, 0.456, 0.406]  # ImageNet statistics
+std: [0.229, 0.224, 0.225]

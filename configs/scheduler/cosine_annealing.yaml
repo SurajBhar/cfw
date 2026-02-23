@@ -1,0 +1,10 @@
+# Cosine Annealing LR Scheduler Configuration
+# Decays learning rate using cosine function from initial_lr to 0
+
+name: CosineAnnealingLR
+scheduler_type: cosine_annealing
+
+# Parameters
+T_max: ${trainer.num_epochs}  # Maximum number of iterations (typically num_epochs)
+eta_min: 0.0  # Minimum learning rate
+last_epoch: -1  # The index of last epoch

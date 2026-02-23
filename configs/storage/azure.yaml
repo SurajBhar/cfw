@@ -1,0 +1,32 @@
+# Azure Blob Storage Configuration
+# Use this for Azure cloud storage operations
+
+backend: azure
+
+# Azure connection settings (use environment variables for credentials)
+connection:
+  account_name: ${oc.env:AZURE_STORAGE_ACCOUNT}
+  # Use one of: account_key, sas_token, or connection_string
+  account_key: ${oc.env:AZURE_STORAGE_KEY,null}
+  sas_token: ${oc.env:AZURE_STORAGE_SAS_TOKEN,null}
+  connection_string: ${oc.env:AZURE_STORAGE_CONNECTION_STRING,null}
+  # Workspace default container in this project is 'datadirectory'
+  container_name: ${oc.env:AZURE_CONTAINER_NAME,datadirectory}
+  # Prefer datastore-based paths for Azure ML jobs.
+  datastore_name: ${oc.env:AZUREML_DATASTORE_NAME,workspaceblobstore}
+
+# Standard directory paths (relative to container root)
+paths:
+  raw: cfw/raw
+  processed: cfw/processed
+  features: cfw/features
+  artifacts: cfw/artifacts
+
+# Local cache for downloaded files
+cache_dir: ./data_cache
+
+# Download settings
+download:
+  use_cache: true
+  max_workers: 4
+  chunk_size: 8388608  # 8MB chunks

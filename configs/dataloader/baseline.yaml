@@ -1,0 +1,25 @@
+# Baseline Dataloader Configuration (Dataloader A)
+# Standard random sampling without CFW
+
+type: baseline
+name: dataloader_a
+
+# Dataloader parameters
+batch_size: 64
+shuffle: true  # Shuffle training data
+drop_last: false  # Drop incomplete batches
+
+# Sampling
+sampling_strategy: random  # Standard random sampling
+
+# Baseline distributed training support
+# When true, train split uses DistributedSampler in DDP mode.
+baseline:
+  use_distributed_sampler: true
+  # Optional: shard baseline val/test in DDP mode so evaluation runs on all ranks.
+  distributed_eval: false
+
+# Data loading
+num_workers: ${hardware.num_workers}
+pin_memory: ${hardware.pin_memory}
+persistent_workers: ${hardware.persistent_workers}

@@ -1,0 +1,87 @@
+# Binary Conversion Configuration
+# Converts multi-class datasets to binary (distracted vs non-distracted)
+# @package _global_
+
+defaults:
+  - /storage@storage: local
+  - _self_
+
+# Processing settings
+processing:
+  max_workers: 8
+  rename_sequential: true  # Rename images to img_XXXXXX.ext
+
+# Drive&Act binary class mapping
+# non_distracted: actions that don't indicate distraction
+# distracted: all other actions
+daa_class_mapping:
+  non_distracted:
+    - sitting_still
+    - entering_car
+    - exiting_car
+
+  distracted:
+    - closing_bottle
+    - closing_door_inside
+    - closing_door_outside
+    - closing_laptop
+    - drinking
+    - eating
+    - fastening_seat_belt
+    - fetching_an_object
+    - interacting_with_phone
+    - looking_or_moving_around_(e.g._searching)
+    - opening_backpack
+    - opening_bottle
+    - opening_door_inside
+    - opening_door_outside
+    - opening_laptop
+    - placing_an_object
+    - preparing_food
+    - pressing_automation_button
+    - putting_laptop_into_backpack
+    - putting_on_jacket
+    - putting_on_sunglasses
+    - reading_magazine
+    - reading_newspaper
+    - taking_laptop_from_backpack
+    - taking_off_jacket
+    - taking_off_sunglasses
+    - talking_on_phone
+    - unfastening_seat_belt
+    - using_multimedia_display
+    - working_on_laptop
+    - writing
+
+# Drive&Act conversion tasks
+daa_conversions:
+  # Primary training dataset
+  kinect_color:
+    enabled: true
+    source: ${storage.paths.processed}/daa_multiclass_kinect_color/split_0
+    destination: ${storage.paths.processed}/daa_binary_kinect_color/split_0
+    splits: [train, val, test]
+
+  # Generalization datasets (test only)
+  kinect_ir:
+    enabled: true
+    source: ${storage.paths.processed}/daa_multiclass_kinect_ir/split_0
+    destination: ${storage.paths.processed}/daa_binary_kinect_ir/split_0
+    splits: [test]
+
+  nir_right_top:
+    enabled: true
+    source: ${storage.paths.processed}/daa_multiclass_nir_right_top/split_0
+    destination: ${storage.paths.processed}/daa_binary_nir_right_top/split_0
+    splits: [test]
+
+  nir_front:
+    enabled: true
+    source: ${storage.paths.processed}/daa_multiclass_nir_front/split_0
+    destination: ${storage.paths.processed}/daa_binary_nir_front/split_0
+    splits: [test]
+
+# Verification settings
+verification:
+  check_counts: true
+  log_class_distribution: true

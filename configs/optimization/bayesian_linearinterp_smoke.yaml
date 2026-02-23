@@ -1,0 +1,59 @@
+# Smoke BOHB profile: LinearInterpolationLR + optimizer family search
+# Use with: python scripts/bayesian_optimize.py +optimization=bayesian_linearinterp_smoke
+
+non_interactive: true
+
+search_space:
+  # Start LR for linear interpolation scheduler.
+  # Also mapped to optimizer.lr for each trial.
+  initial_lr:
+    lower: 2e-4
+    upper: 2e-3
+    log: true
+
+  # End LR for linear interpolation scheduler.
+  # Upper bound is kept below initial_lr lower bound to enforce linear decay.
+  end_lr:
+    lower: 1e-6
+    upper: 1e-4
+    log: true
+
+  weight_decay:
+    lower: 1e-6
+    upper: 1e-3
+    log: true
+
+  optimizer:
+    choices: ["SGD", "ADAMW"]
+
+  scheduler:
+    choices: ["LinearInterpolationLR"]
+
+bohb:
+  max_t: 3
+  reduction_factor: 2
+  stop_last_trials: true
+
+tuner:
+  num_samples: 6
+  max_concurrent: 2
+  metric: "val_balanced_accuracy"
+  mode: "max"
+
+ray:
+  mode: local
+  address: auto
+  namespace: cfw-ray-linear-smoke
+  num_cpus: null
+  num_gpus: null
+  resources_per_trial:
+    cpu: 2
+    gpu: 1
+
+storage:
+  path: "./outputs_smoke/ray_results"
+  name: "cfw_bohb_linearinterp_smoke"
+
+checkpoints_to_keep: 2
+evaluate_test_on_best: false
+verbose: 1

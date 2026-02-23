@@ -1,0 +1,9 @@
+# Exponential Decay LR Scheduler Configuration
+# Exponentially decays learning rate: lr = initial_lr * (gamma ^ epoch)
+
+name: ExponentialDecayexp
+scheduler_type: exponential_decay
+
+# Parameters
+gamma: 0.95  # Decay factor (lr_new = lr_old * gamma)
+last_epoch: -1

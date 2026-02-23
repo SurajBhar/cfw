@@ -1,0 +1,91 @@
+# Drive&Act Dataset Extraction Configuration
+# Extracts frames from videos based on annotation CSV files
+# @package _global_
+
+defaults:
+  - /storage@storage: local
+  - _self_
+
+# Input paths
+input:
+  # Raw video data directories
+  raw_data_dir: ${storage.paths.raw}/driveandact
+  # Annotation files directory
+  annotations_dir: ${storage.paths.raw}/driveandact/iccv_activities_3s
+
+# Output paths
+output:
+  base_dir: ${storage.paths.processed}
+
+# Split configuration
+splits:
+  - name: split_0
+    enabled: true
+    annotation_files:
+      train: midlevel.chunks_90.split_0.train.csv
+      val: midlevel.chunks_90.split_0.val.csv
+      test: midlevel.chunks_90.split_0.test.csv
+
+  - name: split_1
+    enabled: false
+    annotation_files:
+      train: midlevel.chunks_90.split_1.train.csv
+      val: midlevel.chunks_90.split_1.val.csv
+      test: midlevel.chunks_90.split_1.test.csv
+
+  - name: split_2
+    enabled: false
+    annotation_files:
+      train: midlevel.chunks_90.split_2.train.csv
+      val: midlevel.chunks_90.split_2.val.csv
+      test: midlevel.chunks_90.split_2.test.csv
+
+# Camera views to extract
+camera_views:
+  # Primary training view
+  kinect_color:
+    enabled: true
+    extract_splits: [train, val, test]
+    video_subdir: kinect_color
+    annotation_subdir: kinect_color
+    usage: training_evaluation
+
+  # Generalization views (test only)
+  kinect_ir:
+    enabled: true
+    extract_splits: [test]
+    video_subdir: kinect_ir
+    annotation_subdir: kinect_ir
+    usage: generalization
+
+  nir_right_top:
+    enabled: true
+    extract_splits: [test]
+    video_subdir: a_column_co_driver
+    annotation_subdir: a_column_co_driver
+    usage: generalization
+
+  nir_front:
+    enabled: true
+    extract_splits: [test]
+    video_subdir: inner_mirror
+    annotation_subdir: inner_mirror
+    usage: generalization
+
+# Extraction settings
+extraction:
+  max_frames_per_chunk: 48
+  image_format: png
+  max_workers: 8
+
+# Error handling
+processing:
+  error_handling: skip  # skip | stop | retry
+  max_retries: 3
+
+# Output dataset naming
+dataset_names:
+  kinect_color: daa_multiclass_kinect_color
+  kinect_ir: daa_multiclass_kinect_ir
+  nir_right_top: daa_multiclass_nir_right_top
+  nir_front: daa_multiclass_nir_front

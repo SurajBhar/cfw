@@ -1,0 +1,20 @@
+# Local Storage Configuration
+# Use this for local filesystem operations
+
+backend: local
+
+# Optional base path (leave null to use paths as-is)
+base_path: null
+
+# Standard directory paths
+paths:
+  raw: ./data/raw
+  processed: ./data/processed
+  features: ./data/features
+  artifacts: ./data/artifacts
+
+# Cache settings (for any temporary downloads)
+cache:
+  enabled: true
+  dir: ./data_cache
+  max_size_gb: 50

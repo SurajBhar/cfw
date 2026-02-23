@@ -1,0 +1,56 @@
+# Heavy Augmentation Configuration
+# Aggressive augmentations for more regularization
+
+name: heavy_aug
+augmentation_type: heavy
+
+# Training transforms
+train:
+  # Random resized crop
+  random_resized_crop:
+    enabled: true
+    size: ${dataset.image_size}
+    scale: [0.6, 1.0]  # More aggressive cropping
+    ratio: [0.75, 1.33]
+    interpolation: bicubic
+
+  # Random horizontal flip
+  horizontal_flip:
+    enabled: true
+    p: 0.5
+
+  # Random vertical flip
+  vertical_flip:
+    enabled: true
+    p: 0.3
+
+  # Color jitter (more aggressive)
+  color_jitter:
+    enabled: true
+    brightness: 0.4
+    contrast: 0.4
+    saturation: 0.4
+    hue: 0.2
+    p: 0.8
+
+  # Gaussian blur
+  gaussian_blur:
+    enabled: true
+    kernel_size: [5, 9]
+    sigma: [0.1, 2.0]
+    p: 0.5
+
+  # Normalization
+  normalize:
+    mean: ${dataset.mean}
+    std: ${dataset.std}
+
+# Evaluation transforms (no augmentation)
+eval:
+  resize: ${dataset.image_size}
+  interpolation: bicubic
+  center_crop: ${dataset.image_size}
+
+  normalize:
+    mean: ${dataset.mean}
+    std: ${dataset.std}

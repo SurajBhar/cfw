@@ -1,0 +1,10 @@
+# Lambda LR Scheduler Configuration (Step Decay)
+# Multiplies learning rate by gamma every step_size epochs
+
+name: LambdaLR
+scheduler_type: lambda_step
+
+# Parameters
+step_size: 20  # Decay learning rate every N epochs
+gamma: 0.1  # Multiplicative factor (lr = lr * gamma)
+last_epoch: -1

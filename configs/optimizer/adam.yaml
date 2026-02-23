@@ -1,0 +1,11 @@
+# ADAM Optimizer Configuration
+
+name: ADAM
+optimizer_type: adam
+
+# ADAM parameters
+lr: 0.001  # Learning rate
+weight_decay: 0.0  # L2 regularization
+betas: [0.9, 0.999]  # Coefficients for computing running averages
+eps: 1.0e-8  # Term added to denominator for numerical stability
+amsgrad: false  # Use AMSGrad variant

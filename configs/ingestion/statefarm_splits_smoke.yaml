@@ -1,0 +1,60 @@
+# StateFarm smoke split generation config
+# @package _global_
+
+defaults:
+  - /storage@storage: local
+  - _self_
+
+input:
+  statefarm_raw: ${storage.paths.raw}/statefarm
+  pool_dir: ${storage.paths.raw}/statefarm_pool_smoke
+
+output:
+  base_dir: ./data/processed_smoke
+  balanced_multiclass: ${output.base_dir}/statefarm_balanced_multiclass_smoke
+  balanced_binary: ${output.base_dir}/statefarm_balanced_binary_smoke
+  imbalanced_multiclass: ${output.base_dir}/statefarm_imbalanced_multiclass_smoke
+  imbalanced_binary: ${output.base_dir}/statefarm_imbalanced_binary_smoke
+
+split_ratios:
+  train: 0.70
+  val: 0.15
+  test: 0.15
+
+imbalance:
+  strategy: exponential_decay
+  base_retention: 0.70
+  decay_factor: 0.5
+
+processing:
+  seed: 42
+  max_workers: 2
+  rename_sequential: true
+
+variants:
+  balanced_multiclass:
+    enabled: true
+  balanced_binary:
+    enabled: true
+  imbalanced_multiclass:
+    enabled: false
+  imbalanced_binary:
+    enabled: false
+
+binary_mapping:
+  non_distracted:
+    - c0
+  distracted:
+    - c1
+    - c2
+    - c3
+    - c4
+    - c5
+    - c6
+    - c7
+    - c8
+    - c9
+
+validation:
+  check_overlap: false  # Opt-in: hash-based and can be expensive on large datasets
+  verify_counts: true

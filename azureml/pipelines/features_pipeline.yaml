@@ -1,0 +1,68 @@
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+type: pipeline
+experiment_name: cfw-features-pipeline
+description: >-
+  Features pipeline (run a few times): feature extraction -> dataloader comparison.
+settings:
+  default_compute: azureml:cfwcluster
+
+inputs:
+  dataset:
+    type: uri_folder
+    path: azureml:cfw_daa_binary_kinect_color_split0:20260211.1
+  trainer_device:
+    type: string
+    default: "0"
+  num_batches:
+    type: integer
+    default: 100
+
+outputs:
+  feature_artifacts:
+    type: uri_folder
+  comparison_artifacts:
+    type: uri_folder
+
+jobs:
+  extract_features:
+    type: command
+    code: ../../
+    environment: azureml:cfw-dinov2-cu118:2
+    inputs:
+      dataset: ${{parent.inputs.dataset}}
+    outputs:
+      feature_artifacts: ${{parent.outputs.feature_artifacts}}
+    command: >-
+      python scripts/extract_features.py
+      experiment=azure/baseline_dinov2_binary
+      dataset.train_dir=${{inputs.dataset}}/train
+      dataset.val_dir=${{inputs.dataset}}/val
+      dataset.test_dir=${{inputs.dataset}}/test
+      trainer.device=${{parent.inputs.trainer_device}}
+      output_dir=${{outputs.feature_artifacts}}
+    environment_variables:
+      AZUREML_OUTPUTS_DIR: ${{outputs.feature_artifacts}}
+
+  compare_dataloaders:
+    type: command
+    code: ../../
+    environment: azureml:cfw-dinov2-cu118:2
+    inputs:
+      dataset: ${{parent.inputs.dataset}}
+      features: ${{parent.jobs.extract_features.outputs.feature_artifacts}}
+    outputs:
+      comparison_artifacts: ${{parent.outputs.comparison_artifacts}}
+    command: >-
+      python scripts/eval_dataloader.py
+      experiment=azure/cfw_dinov2_binary
+      dataset.train_dir=${{inputs.dataset}}/train
+      dataset.val_dir=${{inputs.dataset}}/val
+      dataset.test_dir=${{inputs.dataset}}/test
+      dataloader.cfw.cfw_train_only=true
+      dataloader.cfw.train_feature_file=${{inputs.features}}/features/train/features.pkl
+      dataloader.cfw.train_label_file=${{inputs.features}}/features/train/labels.pkl
+      dataloader.cfw.train_img_path_file=${{inputs.features}}/features/train/image_paths.pkl
+      num_batches=${{parent.inputs.num_batches}}
+      output_dir=${{outputs.comparison_artifacts}}
+    environment_variables:
+      AZUREML_OUTPUTS_DIR: ${{outputs.comparison_artifacts}}

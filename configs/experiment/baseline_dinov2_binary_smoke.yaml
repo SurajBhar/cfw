@@ -1,0 +1,40 @@
+# @package _global_
+
+# Smoke baseline config (tiny run)
+
+defaults:
+  - override /dataset: driveact_binary
+  - override /model: dinov2_vitb14
+  - override /dataloader: baseline
+  - override /trainer: single_gpu
+  - override /optimizer: adam
+  - override /scheduler: cosine_annealing
+  - override /augmentation: standard_aug
+
+experiment:
+  name: baseline_dinov2_vitb14_driveact_binary_smoke
+  seed: 42
+
+dataset:
+  data_root: ${oc.env:CFW_SMOKE_BINARY_SPLIT0_DIR,./data/processed_smoke/daa_binary_kinect_color_smoke/split_0}
+  train_dir: ${dataset.data_root}/train
+  val_dir: ${dataset.data_root}/val
+  test_dir: ${dataset.data_root}/test
+
+dataloader:
+  batch_size: 8
+
+trainer:
+  num_epochs: 2
+  device: 0
+
+hardware:
+  num_workers: 2
+
+optimizer:
+  lr: 0.001
+  weight_decay: 0.0
+
+scheduler:
+  T_max: ${trainer.num_epochs}
+  eta_min: 0.0

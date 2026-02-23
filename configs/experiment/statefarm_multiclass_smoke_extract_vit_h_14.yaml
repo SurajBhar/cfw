@@ -1,0 +1,34 @@
+# @package _global_
+#
+# StateFarm multiclass smoke: feature extraction (train split only) with ViT-H/14
+
+defaults:
+  - override /dataset: statefarm_multiclass
+  - override /model: vit_h_14
+  - override /dataloader: baseline
+  - override /trainer: single_gpu
+  - override /augmentation: no_aug
+
+experiment:
+  name: stage_k_statefarm_smoke_extract_vit_h14_multiclass
+  seed: 42
+  output_dir: ./data/features/statefarm_imbalanced_multiclass_smoke/vit_h_14
+
+# scripts/extract_features.py reads top-level split to choose processed split(s)
+split: train
+
+dataset:
+  data_root: ${oc.env:CFW_STATEFARM_MULTICLASS_SMOKE_DIR,./data/processed_smoke/statefarm_imbalanced_multiclass_smoke}
+
+dataloader:
+  batch_size: 16
+
+feature_extraction:
+  shuffle: true
+  drop_last: false
+
+trainer:
+  device: cuda:0
+
+hardware:
+  num_workers: 4

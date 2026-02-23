@@ -1,0 +1,39 @@
+# Keep Azure ML code upload small and deterministic.
+# This file is read when packaging `code:` for command jobs.
+
+# VCS / IDE / local metadata
+.git/
+.idea/
+.vscode/
+.DS_Store
+__pycache__/
+*.pyc
+
+# Data and runtime outputs
+/data/**
+outputs/
+multirun/
+logs/
+wandb/
+runs/
+tensorboard/
+.hydra/
+
+# Test/dev artifacts
+.pytest_cache/
+htmlcov/
+.mypy_cache/
+.tox/
+
+# Large/non-essential project content for job execution
+notebooks/
+docs/
+tests/
+envs/
+
+# Optional backups and archives
+*_backup_*/
+*.zip
+*.tar
+*.tar.gz
+*.tgz

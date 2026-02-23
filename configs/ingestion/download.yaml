@@ -1,0 +1,77 @@
+# Dataset Download Configuration
+# Downloads and extracts datasets from URLs
+# @package _global_
+
+defaults:
+  - /storage@storage: local
+  - _self_
+
+# Output directory
+output:
+  raw_data_dir: ${storage.paths.raw}
+
+# Download settings
+download:
+  max_retries: 3
+  retry_delay: 5.0  # seconds, doubles each retry
+  chunk_size: 8192  # bytes
+  timeout: 60  # seconds
+  use_cache: true
+  delete_archive_after_extract: true
+
+# Cache directory for downloads
+cache:
+  dir: ./data_cache
+  enabled: true
+
+# Drive&Act dataset components
+driveact:
+  base_url: https://driveandact.com/dataset
+  output_dir: ${output.raw_data_dir}/driveandact
+
+  components:
+    kinect_color:
+      enabled: true
+      url: ${driveact.base_url}/kinect_color.zip
+      description: "Kinect Color (RGB) - Right Top View - Training + Evaluation"
+
+    kinect_ir:
+      enabled: true
+      url: ${driveact.base_url}/kinect_ir.zip
+      description: "Kinect IR - Right Top View - Cross-Modality Generalization"
+
+    nir_right_top:
+      enabled: true
+      url: ${driveact.base_url}/a_column_co_driver.zip
+      description: "NIR A-Column - Right Top View - Cross-Modality Generalization"
+
+    nir_front:
+      enabled: true
+      url: ${driveact.base_url}/inner_mirror.zip
+      description: "NIR Inner Mirror - Front View - Cross-Modality Generalization"
+
+    annotations:
+      enabled: true
+      url: ${driveact.base_url}/iccv_activities_3s.zip
+      description: "Activity annotations for dataset derivation"
+
+# StateFarm dataset from Kaggle
+statefarm:
+  enabled: true
+  output_dir: ${output.raw_data_dir}/statefarm
+  kaggle_dataset: sinhasau/statefarm-dataset-training-split
+  direct_url: https://www.kaggle.com/api/v1/datasets/download/sinhasau/statefarm-dataset-training-split
+
+  # Kaggle credentials (optional - uses ~/.kaggle/kaggle.json by default)
+  kaggle_credentials: null
+
+# Hash verification (optional)
+verification:
+  enabled: false
+  hashes:
+    kinect_color: null
+    kinect_ir: null
+    nir_right_top: null
+    nir_front: null
+    annotations: null
+    statefarm: null

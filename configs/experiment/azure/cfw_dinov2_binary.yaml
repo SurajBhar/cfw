@@ -1,0 +1,46 @@
+# @package _global_
+
+# Azure ML CFW experiment (CFW train-only + baseline val/test)
+
+defaults:
+  - override /dataset: azure/driveact_binary_split0
+  - override /model: dinov2_vitb14
+  - override /dataloader: cfw
+  - override /trainer: single_gpu
+  - override /optimizer: adam
+  - override /scheduler: cosine_annealing
+  - override /augmentation: no_aug
+  - override /runtime: azureml
+
+experiment:
+  name: azure_cfw_dinov2_vitb14_driveact_binary
+  seed: 42
+
+dataloader:
+  batch_size: 1024
+  cfw:
+    cfw_train_only: true
+    feature_root: ${oc.env:CFW_FEATURES_MOUNT_DIR,./data/features/driveact_binary/split_0/train}
+    train_feature_file: ${dataloader.cfw.feature_root}/features.pkl
+    train_label_file: ${dataloader.cfw.feature_root}/labels.pkl
+    train_img_path_file: ${dataloader.cfw.feature_root}/image_paths.pkl
+
+    clustering_batch_size: ${..batch_size}
+    clustering:
+      min_cluster_size: 25
+      min_samples: 1
+    weighting:
+      outlier_weight: 0.001
+      max_outlier_cluster_size: 50
+
+trainer:
+  num_epochs: 20
+  device: ${oc.env:CFW_TRAIN_DEVICE,0}
+
+optimizer:
+  lr: 0.001
+  weight_decay: 0.0
+
+scheduler:
+  T_max: ${trainer.num_epochs}
+  eta_min: 0.0

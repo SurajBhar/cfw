@@ -1,0 +1,70 @@
+# @package _global_
+
+# Grid Search: DINOv2 ViT-B/14 CFW - Learning Rate Sweep
+# Drive&Act Multiclass (34 classes) Split 0 with CFW dataloader
+# Run with: python scripts/train.py -m experiment=grid_search/cfw_dinov2_multiclass_lr_sweep
+
+defaults:
+  - override /dataset: driveact_multiclass
+  - override /model: dinov2_vitb14
+  - override /dataloader: cfw
+  - override /trainer: single_gpu
+  - override /augmentation: no_aug
+
+# Experiment name
+experiment:
+  name: gs_cfw_dinov2_multiclass_lr_sweep
+  seed: 42
+
+# Dataset paths (env-driven with local fallback)
+dataset:
+  data_root: ${oc.env:CFW_DRIVEACT_MULTICLASS_SPLIT0_DIR,./data/processed/daa_multiclass_kinect_color/split_0}
+  train_dir: ${dataset.data_root}/train
+  val_dir: ${dataset.data_root}/val
+  test_dir: ${dataset.data_root}/test
+  num_classes: 34
+
+# CFW feature paths - need multiclass features for Split 0
+# You need to extract features for multiclass dataset
+dataloader:
+  batch_size: 1024
+  cfw:
+    cfw_train_only: true
+    # Feature files for multiclass Split 0 (update with your extracted features)
+    train_feature_file: ${oc.env:CFW_CFW_MULTICLASS_FEATURE_SPLIT0_DIR,./data/features/driveact_multiclass/split_0/train}/features.pkl
+    train_label_file: ${oc.env:CFW_CFW_MULTICLASS_FEATURE_SPLIT0_DIR,./data/features/driveact_multiclass/split_0/train}/labels.pkl
+    train_img_path_file: ${oc.env:CFW_CFW_MULTICLASS_FEATURE_SPLIT0_DIR,./data/features/driveact_multiclass/split_0/train}/image_paths.pkl
+
+    # CFW hyperparameters
+    clustering_batch_size: 1024
+    clustering:
+      min_cluster_size: 25
+      min_samples: 1
+    weighting:
+      outlier_weight: 0.001
+      max_outlier_cluster_size: 50
+
+# Training settings - shorter epochs for grid search
+trainer:
+  num_epochs: 80
+  device: 0
+
+# Hardware settings
+hardware:
+  num_workers: 10
+  prefetch_factor: 4
+
+# ============================================
+# HYDRA SWEEP CONFIGURATION
+# Run with: python scripts/train.py -m experiment=grid_search/cfw_dinov2_multiclass_lr_sweep
+# ============================================
+hydra:
+  mode: MULTIRUN
+  sweeper:
+    params:
+      # Learning rate sweep (matching original grid search)
+      optimizer.lr: 0.003,0.01,0.03,0.06
+      # Optimizer sweep
+      optimizer: adam,sgd
+      # Scheduler sweep
+      scheduler: cosine_annealing,linear_interpolation,lambda_step

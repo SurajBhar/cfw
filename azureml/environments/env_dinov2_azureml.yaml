@@ -1,0 +1,6 @@
+$schema: https://azuremlschemas.azureedge.net/latest/environment.schema.json
+name: cfw-dinov2-cu118
+version: 2
+image: mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.8-cudnn8-ubuntu22.04
+conda_file: ./conda_dinov2_azure.yml
+description: CFW DINOv2 runtime for Azure ML jobs

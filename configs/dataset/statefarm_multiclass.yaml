@@ -1,0 +1,39 @@
+# State Farm Dataset - Multi-Class Configuration
+# 10 distraction classes (c0-c9)
+
+name: statefarm_multiclass
+dataset_type: multiclass
+is_binary: false
+
+# Dataset paths (env-driven with local fallback)
+data_root: ${oc.env:CFW_STATEFARM_MULTICLASS_DIR,./data/processed/statefarm_balanced_multiclass}
+train_dir: ${dataset.data_root}/train
+val_dir: ${dataset.data_root}/val
+test_dir: ${dataset.data_root}/test
+
+# Dataset properties
+num_classes: 10
+
+# Class names from State Farm dataset
+class_names:
+  - c0_safe_driving
+  - c1_texting_right
+  - c2_talking_phone_right
+  - c3_texting_left
+  - c4_talking_phone_left
+  - c5_operating_radio
+  - c6_drinking
+  - c7_reaching_behind
+  - c8_hair_and_makeup
+  - c9_talking_to_passenger
+
+# Image properties
+image_size: 224
+file_extensions:
+  - png
+  - jpg
+  - jpeg
+
+# Data statistics (for normalization)
+mean: [0.485, 0.456, 0.406]  # ImageNet statistics
+std: [0.229, 0.224, 0.225]

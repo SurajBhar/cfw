@@ -1,0 +1,37 @@
+# State Farm Dataset - Binary Classification Configuration
+# Binary: distracted (1) vs non_distracted (0)
+
+name: statefarm_binary
+dataset_type: binary
+is_binary: true
+
+# Dataset paths (env-driven with local fallback)
+data_root: ${oc.env:CFW_STATEFARM_BINARY_DIR,./data/processed/statefarm_balanced_binary}
+train_dir: ${dataset.data_root}/train
+val_dir: ${dataset.data_root}/val
+test_dir: ${dataset.data_root}/test
+
+# Dataset properties
+num_classes: 2
+class_names:
+  - non_distracted
+  - distracted
+non_distracted_classes:
+  - non_distracted
+
+# Image properties
+image_size: 224
+file_extensions:
+  - png
+  - jpg
+  - jpeg
+
+# Class mapping (for binary conversion from multi-class)
+# non_distracted: c0, distracted: c1-c9
+class_mapping:
+  non_distracted: [0]  # c0
+  distracted: [1, 2, 3, 4, 5, 6, 7, 8, 9]  # c1-c9
+
+# Data statistics (for normalization)
+mean: [0.485, 0.456, 0.406]  # ImageNet statistics
+std: [0.229, 0.224, 0.225]

@@ -1,0 +1,50 @@
+# @package _global_
+
+# Baseline Experiment: DINOv2 ViT-B/14 on Binary Classification - Split 0
+# Standard dataloader (Dataloader A) with random sampling
+
+defaults:
+  - override /dataset: driveact_binary
+  - override /model: dinov2_vitb14
+  - override /dataloader: baseline
+  - override /trainer: single_gpu
+  - override /optimizer: sgd
+  - override /scheduler: linear_interpolation
+  - override /augmentation: no_aug
+
+# Experiment name
+experiment:
+  name: baseline_dinov2_vitb14_driveact_binary_split0
+  seed: 42
+
+# Dataset paths (env-driven with local fallback)
+dataset:
+  data_root: ${oc.env:CFW_DRIVEACT_BINARY_SPLIT0_DIR,./data/processed/daa_binary_kinect_color/split_0}
+  train_dir: ${dataset.data_root}/train
+  val_dir: ${dataset.data_root}/val
+  test_dir: ${dataset.data_root}/test
+
+# Dataloader settings
+dataloader:
+  batch_size: 1024
+
+# Training settings
+trainer:
+  num_epochs: 100
+  device: 0
+
+# Optimizer settings - SGD with momentum (matching original config)
+optimizer:
+  lr: 0.0004
+  momentum: 0.9
+  weight_decay: 0.0
+
+# Scheduler settings - Linear interpolation from start_lr to end_lr
+scheduler:
+  start_lr: 0.0004
+  end_lr: 0.0002
+
+# Hardware settings
+hardware:
+  num_workers: 10
+  prefetch_factor: 4

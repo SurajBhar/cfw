@@ -1,0 +1,148 @@
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+type: pipeline
+experiment_name: cfw-hpo-pipeline
+description: >-
+  HPO pipeline (run often): hyperparameter sweep (BOHB) -> final train on best
+  config -> eval.
+settings:
+  default_compute: azureml:cfwcluster
+
+inputs:
+  dataset:
+    type: uri_folder
+    path: azureml:cfw_daa_binary_kinect_color_split0:20260211.1
+  trainer_device:
+    type: string
+    default: "0"
+  optimization_profile:
+    type: string
+    default: bayesian
+  hpo_num_samples:
+    type: integer
+    default: 16
+  hpo_max_concurrent:
+    type: integer
+    default: 2
+  final_trainer_profile:
+    type: string
+    default: single_gpu
+  final_train_instance_count:
+    type: integer
+    default: 1
+  final_process_count_per_instance:
+    type: integer
+    default: 1
+  final_num_epochs:
+    type: integer
+    default: 20
+
+outputs:
+  feature_artifacts:
+    type: uri_folder
+  hpo_artifacts:
+    type: uri_folder
+  trained_artifacts:
+    type: uri_folder
+  eval_artifacts:
+    type: uri_folder
+
+jobs:
+  extract_features:
+    type: command
+    code: ../../
+    environment: azureml:cfw-dinov2-cu118:2
+    inputs:
+      dataset: ${{parent.inputs.dataset}}
+    outputs:
+      feature_artifacts: ${{parent.outputs.feature_artifacts}}
+    command: >-
+      python scripts/extract_features.py
+      experiment=azure/baseline_dinov2_binary
+      dataset.train_dir=${{inputs.dataset}}/train
+      dataset.val_dir=${{inputs.dataset}}/val
+      dataset.test_dir=${{inputs.dataset}}/test
+      trainer.device=${{parent.inputs.trainer_device}}
+      output_dir=${{outputs.feature_artifacts}}
+    environment_variables:
+      AZUREML_OUTPUTS_DIR: ${{outputs.feature_artifacts}}
+
+  hpob_search:
+    type: command
+    code: ../../
+    environment: azureml:cfw-vitrans-cu118:2
+    inputs:
+      dataset: ${{parent.inputs.dataset}}
+      features: ${{parent.jobs.extract_features.outputs.feature_artifacts}}
+    outputs:
+      hpo_artifacts: ${{parent.outputs.hpo_artifacts}}
+    command: >-
+      python scripts/bayesian_optimize.py
+      experiment=azure/cfw_dinov2_binary
+      +optimization=${{parent.inputs.optimization_profile}}
+      dataset.train_dir=${{inputs.dataset}}/train
+      dataset.val_dir=${{inputs.dataset}}/val
+      dataset.test_dir=${{inputs.dataset}}/test
+      optimization.non_interactive=true
+      optimization.tuner.num_samples=${{parent.inputs.hpo_num_samples}}
+      optimization.tuner.max_concurrent=${{parent.inputs.hpo_max_concurrent}}
+      optimization.storage.path=${{outputs.hpo_artifacts}}
+      optimization.storage.name=cfw_bohb_pipeline
+    environment_variables:
+      CFW_FEATURES_MOUNT_DIR: ${{inputs.features}}/features/train
+
+  train_best_model:
+    type: command
+    code: ../../
+    environment: azureml:cfw-dinov2-cu118:2
+    resources:
+      instance_count: ${{parent.inputs.final_train_instance_count}}
+    distribution:
+      type: pytorch
+      process_count_per_instance: ${{parent.inputs.final_process_count_per_instance}}
+    inputs:
+      dataset: ${{parent.inputs.dataset}}
+      features: ${{parent.jobs.extract_features.outputs.feature_artifacts}}
+      hpo_artifacts: ${{parent.jobs.hpob_search.outputs.hpo_artifacts}}
+    outputs:
+      trained_artifacts: ${{parent.outputs.trained_artifacts}}
+    command: >-
+      python scripts/azure/train_from_best_config.py
+      --best-config ${{inputs.hpo_artifacts}}/best_config.yaml
+      --dataset-root ${{inputs.dataset}}
+      --features-root ${{inputs.features}}
+      --output-dir ${{outputs.trained_artifacts}}
+      --experiment azure/cfw_dinov2_binary
+      --trainer-profile ${{parent.inputs.final_trainer_profile}}
+      --num-epochs ${{parent.inputs.final_num_epochs}}
+      --device ${{parent.inputs.trainer_device}}
+    environment_variables:
+      AZUREML_OUTPUTS_DIR: ${{outputs.trained_artifacts}}
+      CFW_ENABLE_MLFLOW: "true"
+
+  evaluate_model:
+    type: command
+    code: ../../
+    environment: azureml:cfw-dinov2-cu118:2
+    inputs:
+      dataset: ${{parent.inputs.dataset}}
+      trained_artifacts: ${{parent.jobs.train_best_model.outputs.trained_artifacts}}
+    outputs:
+      eval_artifacts: ${{parent.outputs.eval_artifacts}}
+    command: >-
+      bash -c "set -euo pipefail;
+      BEST_CKPT=\$(find '${{inputs.trained_artifacts}}' -name '*_best.pth' | sort | tail -n 1);
+      if [ -z \"\$BEST_CKPT\" ]; then
+        echo 'No *_best.pth checkpoint found in trained_artifacts' >&2;
+        exit 1;
+      fi;
+      echo \"Using checkpoint: \$BEST_CKPT\";
+      python scripts/test.py
+      experiment=azure/cfw_dinov2_binary
+      dataset.train_dir=${{inputs.dataset}}/train
+      dataset.val_dir=${{inputs.dataset}}/val
+      dataset.test_dir=${{inputs.dataset}}/test
+      checkpoint_path=\$BEST_CKPT
+      trainer.device=${{parent.inputs.trainer_device}}
+      output_dir=${{outputs.eval_artifacts}}"
+    environment_variables:
+      AZUREML_OUTPUTS_DIR: ${{outputs.eval_artifacts}}

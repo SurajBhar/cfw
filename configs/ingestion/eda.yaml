@@ -1,0 +1,83 @@
+# EDA (Exploratory Data Analysis) Configuration
+# Generates statistics and integrity reports for all datasets
+# @package _global_
+
+defaults:
+  - /storage@storage: local
+  - _self_
+
+# Input/Output directories
+paths:
+  processed_dir: ${storage.paths.processed}
+  artifacts_dir: ${storage.paths.artifacts}
+
+# Processing settings
+processing:
+  max_workers: 8
+
+# Integrity checking
+integrity:
+  enabled: true
+  check_image_files: false  # Set to true to verify image files (slow)
+  sample_ratio: 1.0  # Ratio of images to check (1.0 = all)
+
+# Datasets to analyze
+datasets:
+  # Drive&Act datasets
+  daa_multiclass_kinect_color:
+    enabled: true
+    path: ${paths.processed_dir}/daa_multiclass_kinect_color
+
+  daa_binary_kinect_color:
+    enabled: true
+    path: ${paths.processed_dir}/daa_binary_kinect_color
+
+  daa_multiclass_kinect_ir:
+    enabled: true
+    path: ${paths.processed_dir}/daa_multiclass_kinect_ir
+
+  daa_binary_kinect_ir:
+    enabled: true
+    path: ${paths.processed_dir}/daa_binary_kinect_ir
+
+  daa_multiclass_nir_right_top:
+    enabled: true
+    path: ${paths.processed_dir}/daa_multiclass_nir_right_top
+
+  daa_binary_nir_right_top:
+    enabled: true
+    path: ${paths.processed_dir}/daa_binary_nir_right_top
+
+  daa_multiclass_nir_front:
+    enabled: true
+    path: ${paths.processed_dir}/daa_multiclass_nir_front
+
+  daa_binary_nir_front:
+    enabled: true
+    path: ${paths.processed_dir}/daa_binary_nir_front
+
+  # StateFarm datasets
+  statefarm_balanced_multiclass:
+    enabled: true
+    path: ${paths.processed_dir}/statefarm_balanced_multiclass
+
+  statefarm_balanced_binary:
+    enabled: true
+    path: ${paths.processed_dir}/statefarm_balanced_binary
+
+  statefarm_imbalanced_multiclass:
+    enabled: true
+    path: ${paths.processed_dir}/statefarm_imbalanced_multiclass
+
+  statefarm_imbalanced_binary:
+    enabled: true
+    path: ${paths.processed_dir}/statefarm_imbalanced_binary
+
+# Report outputs
+outputs:
+  statistics: eda_statistics.json
+  class_distribution: eda_class_distribution.json
+  imbalance_ratios: eda_imbalance_ratios.json
+  dataset_sizes: eda_dataset_sizes.json
+  integrity_report: eda_integrity_report.json
+  summary: eda_summary.json

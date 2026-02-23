@@ -1,0 +1,50 @@
+# @package _global_
+#
+# StateFarm multiclass smoke: CFW training with DINOv2 ViT-B/14
+# Mirrors the long CLI command for scripts/train.py.
+
+defaults:
+  - override /dataset: statefarm_multiclass
+  - override /model: dinov2_vitb14
+  - override /dataloader: cfw
+  - override /trainer: single_gpu
+  - override /optimizer: sgd
+  - override /scheduler: linear_interpolation
+  - override /augmentation: no_aug
+
+experiment:
+  name: stage_k_statefarm_smoke_cfw_dinov2_multiclass
+  seed: 42
+
+dataset:
+  data_root: ${oc.env:CFW_STATEFARM_MULTICLASS_SMOKE_DIR,./data/processed_smoke/statefarm_imbalanced_multiclass_smoke}
+  train_dir: ${dataset.data_root}/train
+  val_dir: ${dataset.data_root}/val
+  test_dir: ${dataset.data_root}/test
+
+model:
+  freeze_backbone: true
+
+dataloader:
+  batch_size: 16
+  cfw:
+    # Coupled-batch policy: must match dataloader.batch_size
+    clustering_batch_size: ${..batch_size}
+    train_feature_file: ${oc.env:CFW_STATEFARM_MULTICLASS_SMOKE_DINOV2_FEATURE_DIR,./data/features/statefarm_imbalanced_multiclass_smoke/dinov2_vitb14/features/train}/features.pkl
+    train_label_file: ${oc.env:CFW_STATEFARM_MULTICLASS_SMOKE_DINOV2_FEATURE_DIR,./data/features/statefarm_imbalanced_multiclass_smoke/dinov2_vitb14/features/train}/labels.pkl
+    train_img_path_file: ${oc.env:CFW_STATEFARM_MULTICLASS_SMOKE_DINOV2_FEATURE_DIR,./data/features/statefarm_imbalanced_multiclass_smoke/dinov2_vitb14/features/train}/image_paths.pkl
+
+trainer:
+  num_epochs: 2
+  device: cuda:0
+
+hardware:
+  num_workers: 4
+
+optimizer:
+  lr: 0.0004
+
+scheduler:
+  start_lr: ${optimizer.lr}
+  end_lr: 0.0002
+  num_epochs: ${trainer.num_epochs}

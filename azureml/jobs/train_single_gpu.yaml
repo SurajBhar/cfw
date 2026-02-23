@@ -1,0 +1,27 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+experiment_name: cfw-train-single-gpu
+code: ../../
+command: >-
+  python scripts/train.py
+  experiment=azure/baseline_dinov2_binary
+  dataset.train_dir=${{inputs.dataset}}/train
+  dataset.val_dir=${{inputs.dataset}}/val
+  dataset.test_dir=${{inputs.dataset}}/test
+  trainer.device=0
+  trainer.num_epochs=20
+environment: azureml:cfw-dinov2-cu118:2
+compute: azureml:cfwcluster
+resources:
+  instance_count: 1
+inputs:
+  dataset:
+    type: uri_folder
+    path: azureml:cfw_daa_binary_kinect_color_split0:20260211.1
+    mode: ro_mount
+outputs:
+  trained_artifacts:
+    type: uri_folder
+    mode: rw_mount
+environment_variables:
+  AZUREML_OUTPUTS_DIR: ${{outputs.trained_artifacts}}
+  CFW_ENABLE_MLFLOW: "true"

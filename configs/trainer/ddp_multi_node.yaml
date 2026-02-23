@@ -1,0 +1,55 @@
+# DDP Multi-Node Multi-GPU Trainer Configuration
+# Use with: torchrun --nnodes=N --nproc_per_node=M scripts/train.py trainer=ddp_multi_node
+
+name: ddp_multi_node
+mode: ddp
+
+# Training parameters
+num_epochs: 100
+gradient_clip_max_norm: null  # Set to a value (e.g., 1.0) to enable gradient clipping
+distributed: true
+device: "cuda:0"  # Used only when DDP is disabled; DDP uses LOCAL_RANK
+
+# DDP configuration
+backend: nccl  # Use NCCL for GPU training
+find_unused_parameters: false
+gradient_as_bucket_view: true
+scale_lr_with_world_size: false  # If true, LR is multiplied by lr_scale_factor or WORLD_SIZE
+lr_scale_factor: null  # Optional explicit scale factor override when scaling is enabled
+
+# Multi-node setup
+# These must be set via environment variables or torchrun:
+# - RANK: Global rank across all nodes
+# - LOCAL_RANK: Local rank within a node
+# - WORLD_SIZE: Total number of processes
+# - MASTER_ADDR: IP address of rank 0 node (e.g., node001.cluster.com)
+# - MASTER_PORT: Port for communication (default: 29500)
+
+# Example SLURM setup:
+# export MASTER_ADDR=$(scontrol show hostname $SLURM_NODELIST | head -n 1)
+# export MASTER_PORT=29500
+
+# Validation
+validate_every: 1
+early_stopping:
+  enabled: false
+  patience: 10
+  min_delta: 0.001
+
+# Logging (only rank 0 logs)
+log_every: 10
+tensorboard_log_every: 10
+
+# Callbacks
+callbacks:
+  - checkpoint
+  - lr_logger
+
+# Mixed precision training
+use_amp: false
+
+# Gradient accumulation
+accumulation_steps: 1
+
+# Network timeout (increase for slow networks or large models)
+timeout_minutes: 30

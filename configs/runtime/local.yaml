@@ -1,0 +1,12 @@
+# Local runtime defaults
+
+name: local
+is_azureml: false
+
+paths:
+  outputs_root: ./outputs
+  data_root: ./data
+
+mlflow:
+  enabled: false
+  experiment_name: cfw-local

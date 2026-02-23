@@ -1,0 +1,79 @@
+# Drive&Act smoke extraction config
+# @package _global_
+
+defaults:
+  - /storage@storage: local
+  - _self_
+
+input:
+  raw_data_dir: ${storage.paths.raw}/driveandact
+  annotations_dir: ${storage.paths.raw}/driveandact/iccv_activities_3s_smoke
+
+output:
+  base_dir: ./data/processed_smoke
+
+splits:
+  - name: split_0
+    enabled: true
+    annotation_files:
+      train: midlevel.chunks_90.split_0.train.csv
+      val: midlevel.chunks_90.split_0.val.csv
+      test: midlevel.chunks_90.split_0.test.csv
+
+  - name: split_1
+    enabled: false
+    annotation_files:
+      train: midlevel.chunks_90.split_1.train.csv
+      val: midlevel.chunks_90.split_1.val.csv
+      test: midlevel.chunks_90.split_1.test.csv
+
+  - name: split_2
+    enabled: false
+    annotation_files:
+      train: midlevel.chunks_90.split_2.train.csv
+      val: midlevel.chunks_90.split_2.val.csv
+      test: midlevel.chunks_90.split_2.test.csv
+
+camera_views:
+  kinect_color:
+    enabled: true
+    extract_splits: [train, val, test]
+    video_subdir: kinect_color
+    annotation_subdir: kinect_color
+    usage: training_evaluation
+
+  kinect_ir:
+    enabled: false
+    extract_splits: [test]
+    video_subdir: kinect_ir
+    annotation_subdir: kinect_ir
+    usage: generalization
+
+  nir_right_top:
+    enabled: false
+    extract_splits: [test]
+    video_subdir: a_column_co_driver
+    annotation_subdir: a_column_co_driver
+    usage: generalization
+
+  nir_front:
+    enabled: false
+    extract_splits: [test]
+    video_subdir: inner_mirror
+    annotation_subdir: inner_mirror
+    usage: generalization
+
+extraction:
+  max_frames_per_chunk: 8
+  image_format: png
+  max_workers: 2
+
+processing:
+  error_handling: skip
+  max_retries: 3
+
+dataset_names:
+  kinect_color: daa_multiclass_kinect_color_smoke
+  kinect_ir: daa_multiclass_kinect_ir_smoke
+  nir_right_top: daa_multiclass_nir_right_top_smoke
+  nir_front: daa_multiclass_nir_front_smoke

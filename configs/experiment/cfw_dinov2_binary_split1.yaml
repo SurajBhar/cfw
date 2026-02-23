@@ -1,0 +1,65 @@
+# @package _global_
+
+# CFW Experiment: DINOv2 ViT-B/14 on Binary Classification - Split 1
+# CFW dataloader (Dataloader B) with weighted sampling
+
+defaults:
+  - override /dataset: driveact_binary
+  - override /model: dinov2_vitb14
+  - override /dataloader: cfw
+  - override /trainer: single_gpu
+  - override /optimizer: sgd
+  - override /scheduler: linear_interpolation
+  - override /augmentation: no_aug  # CFW typically uses no augmentation
+
+# Experiment name
+experiment:
+  name: cfw_dinov2_vitb14_driveact_binary_split1
+  seed: 42
+
+# Dataset paths (env-driven with local fallback)
+dataset:
+  data_root: ${oc.env:CFW_DRIVEACT_BINARY_SPLIT1_DIR,./data/processed/daa_binary_kinect_color/split_1}
+  train_dir: ${dataset.data_root}/train
+  val_dir: ${dataset.data_root}/val
+  test_dir: ${dataset.data_root}/test
+
+# CFW feature paths (pre-extracted features required) - Split 1
+dataloader:
+  batch_size: 1024
+  cfw:
+    cfw_train_only: true
+    # Training features - all combined in single files for Split 1
+    train_feature_file: ${oc.env:CFW_CFW_FEATURE_SPLIT1_DIR,./data/features/driveact_binary/split_1/train}/features.pkl
+    train_label_file: ${oc.env:CFW_CFW_FEATURE_SPLIT1_DIR,./data/features/driveact_binary/split_1/train}/labels.pkl
+    train_img_path_file: ${oc.env:CFW_CFW_FEATURE_SPLIT1_DIR,./data/features/driveact_binary/split_1/train}/image_paths.pkl
+
+    # CFW hyperparameters
+    clustering_batch_size: ${..batch_size}
+    clustering:
+      min_cluster_size: 25
+      min_samples: 1
+    weighting:
+      outlier_weight: 0.001
+      max_outlier_cluster_size: 50
+
+# Training settings
+trainer:
+  num_epochs: 100
+  device: 0
+
+# Optimizer settings - SGD with momentum (matching original config)
+optimizer:
+  lr: 0.0004
+  momentum: 0.9
+  weight_decay: 0.0
+
+# Scheduler settings - Linear interpolation from start_lr to end_lr
+scheduler:
+  start_lr: 0.0004
+  end_lr: 0.0002
+
+# Hardware settings
+hardware:
+  num_workers: 10
+  prefetch_factor: 4

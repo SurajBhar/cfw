@@ -1,0 +1,11 @@
+# SGD Optimizer Configuration
+
+name: SGD
+optimizer_type: sgd
+
+# SGD parameters
+lr: 0.01  # Learning rate
+momentum: 0.9  # Momentum factor
+weight_decay: 0.0  # L2 regularization
+dampening: 0.0  # Dampening for momentum
+nesterov: false  # Use Nesterov momentum

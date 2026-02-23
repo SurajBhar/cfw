@@ -1,0 +1,52 @@
+# @package _global_
+
+# Smoke CFW config (tiny run)
+
+defaults:
+  - override /dataset: driveact_binary
+  - override /model: dinov2_vitb14
+  - override /dataloader: cfw
+  - override /trainer: single_gpu
+  - override /optimizer: adam
+  - override /scheduler: cosine_annealing
+  - override /augmentation: no_aug
+
+experiment:
+  name: cfw_dinov2_vitb14_driveact_binary_smoke
+  seed: 42
+
+dataset:
+  data_root: ${oc.env:CFW_SMOKE_BINARY_SPLIT0_DIR,./data/processed_smoke/daa_binary_kinect_color_smoke/split_0}
+  train_dir: ${dataset.data_root}/train
+  val_dir: ${dataset.data_root}/val
+  test_dir: ${dataset.data_root}/test
+
+dataloader:
+  batch_size: 8
+  cfw:
+    cfw_train_only: true
+    train_feature_file: ${oc.env:CFW_SMOKE_FEATURE_DIR,./outputs_smoke/features/features/train}/features.pkl
+    train_label_file: ${oc.env:CFW_SMOKE_FEATURE_DIR,./outputs_smoke/features/features/train}/labels.pkl
+    train_img_path_file: ${oc.env:CFW_SMOKE_FEATURE_DIR,./outputs_smoke/features/features/train}/image_paths.pkl
+    clustering_batch_size: ${..batch_size}
+    clustering:
+      min_cluster_size: 5
+      min_samples: 1
+    weighting:
+      outlier_weight: 0.001
+      max_outlier_cluster_size: 10
+
+trainer:
+  num_epochs: 2
+  device: 0
+
+hardware:
+  num_workers: 2
+
+optimizer:
+  lr: 0.0005
+  weight_decay: 0.0
+
+scheduler:
+  T_max: ${trainer.num_epochs}
+  eta_min: 0.0

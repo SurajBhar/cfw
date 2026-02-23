@@ -1,0 +1,14 @@
+# Azure ML runtime defaults
+
+name: azureml
+is_azureml: true
+
+paths:
+  # Azure ML mounts named outputs under these env variables
+  outputs_root: ${oc.env:AZUREML_OUTPUTS_DIR,${oc.env:AZUREML_RUN_OUTPUT_PATH,./outputs}}
+  # Default data mount root for command jobs
+  data_root: ${oc.env:CFW_DATASET_MOUNT_DIR,./data}
+
+mlflow:
+  enabled: ${oc.env:CFW_ENABLE_MLFLOW,true}
+  experiment_name: ${oc.env:MLFLOW_EXPERIMENT_NAME,cfw-azureml}

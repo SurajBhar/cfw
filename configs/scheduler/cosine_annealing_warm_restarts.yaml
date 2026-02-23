@@ -1,0 +1,11 @@
+# Cosine Annealing with Warm Restarts Scheduler Configuration
+# Periodically resets learning rate to initial value
+
+name: CosineAnnealingWarmRestarts
+scheduler_type: cosine_annealing_warm_restarts
+
+# Parameters
+T_0: 10  # Number of epochs for the first restart
+T_mult: 2  # Factor to increase T_i after each restart (T_i = T_mult * T_i-1)
+eta_min: 0.0  # Minimum learning rate
+last_epoch: -1

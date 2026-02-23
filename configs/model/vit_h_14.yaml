@@ -1,0 +1,21 @@
+# ViT-Huge/14 Model Configuration (timm)
+
+name: vit_h_14
+model_type: vit
+
+# Model architecture
+backbone: vit_h_14
+embedding_dim: 1280
+patch_size: 14
+
+# Classification head
+head_type: linear  # Options: linear, mlp
+hidden_dims: []  # For MLP head: [512, 256]
+dropout: 0.0
+
+# Model initialization
+pretrained: true
+freeze_backbone: false  # Set to true for linear probing
+
+# Output
+num_classes: ${dataset.num_classes}

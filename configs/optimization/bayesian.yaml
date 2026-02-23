@@ -1,0 +1,73 @@
+# Bayesian Optimization Configuration
+# Use with: python scripts/bayesian_optimize.py +optimization=bayesian
+
+# Interactive confirmation before run (set true for Azure jobs/CI)
+non_interactive: false
+
+# Search space bounds for hyperparameters
+search_space:
+  learning_rate:
+    lower: 1e-5
+    upper: 5e-2
+    log: true
+
+  weight_decay:
+    lower: 1e-6
+    upper: 1e-3
+    log: true
+
+  optimizer:
+    choices: ["ADAM"]  # Can add "SGD" to search over optimizers
+
+  # Uncomment to include scheduler in search
+  # scheduler:
+  #   choices: ["CosineAnnealingLR", "StepLR"]
+
+  # Uncomment to include batch size in search
+  # batch_size:
+  #   choices: [16, 32, 64]
+
+  # Uncomment to include dropout in search
+  # dropout:
+  #   lower: 0.0
+  #   upper: 0.5
+
+# BOHB Scheduler settings
+bohb:
+  max_t: 50              # Max epochs per trial
+  reduction_factor: 4    # HyperBand reduction factor (eta)
+  stop_last_trials: true
+
+# Ray Tuner settings
+tuner:
+  num_samples: 40        # Total number of trials to run
+  max_concurrent: 4      # Max parallel trials
+  metric: "val_balanced_accuracy"  # Optimization metric
+  mode: "max"            # "max" or "min"
+
+# Ray cluster settings
+ray:
+  mode: local            # local | cluster
+  address: auto          # used when mode=cluster
+  namespace: cfw-ray     # used when mode=cluster
+  num_cpus: null         # null = auto-detect
+  num_gpus: null         # null = auto-detect
+  resources_per_trial:
+    cpu: 4
+    gpu: 1
+
+# Storage settings
+storage:
+  path: "./ray_results"
+  name: "cfw_bohb_experiment"
+
+# Checkpointing
+# Periodic checkpointing is disabled for BOHB (Ray Train v2 compatibility).
+checkpoints_to_keep: 3    # Retention for available trial checkpoints
+evaluate_test_on_best: false  # One-time test evaluation after BOHB completes
+
+# Verbosity (0=silent, 1=status, 2=brief, 3=detailed)
+verbose: 1
+
+# Optional: Path to base config (defaults to current hydra config)
+# base_config_path: null

@@ -1,0 +1,48 @@
+# DDP Single Node Multi-GPU Trainer Configuration
+# Use with: torchrun --nproc_per_node=N scripts/train.py trainer=ddp_single_node
+
+name: ddp_single_node
+mode: ddp
+
+# Training parameters
+num_epochs: 100
+gradient_clip_max_norm: null  # Set to a value (e.g., 1.0) to enable gradient clipping
+distributed: true
+device: "cuda:0"  # Used only when DDP is disabled; DDP uses LOCAL_RANK
+
+# DDP configuration
+backend: nccl  # Use NCCL for GPU training (gloo for CPU)
+find_unused_parameters: false
+gradient_as_bucket_view: true
+scale_lr_with_world_size: false  # If true, LR is multiplied by lr_scale_factor or WORLD_SIZE
+lr_scale_factor: null  # Optional explicit scale factor override when scaling is enabled
+
+# Multi-GPU setup
+# These are set automatically by torchrun:
+# - RANK
+# - LOCAL_RANK
+# - WORLD_SIZE
+# - MASTER_ADDR (default: localhost)
+# - MASTER_PORT (default: 29500)
+
+# Validation
+validate_every: 1  # Run validation every N epochs
+early_stopping:
+  enabled: false
+  patience: 10
+  min_delta: 0.001
+
+# Logging (only rank 0 logs)
+log_every: 10
+tensorboard_log_every: 10
+
+# Callbacks
+callbacks:
+  - checkpoint
+  - lr_logger
+
+# Mixed precision training
+use_amp: false  # Set to true for automatic mixed precision
+
+# Gradient accumulation
+accumulation_steps: 1  # Accumulate gradients over N batches (for larger effective batch size)

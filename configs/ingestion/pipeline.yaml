@@ -1,0 +1,71 @@
+# Full Ingestion Pipeline Configuration
+# Orchestrates Stages A-E: Download -> DAA Extraction -> Binary Conversion -> StateFarm -> EDA
+# @package _global_
+
+defaults:
+  - /storage: local  # or azure
+
+# Pipeline stage configuration
+pipeline:
+  # Error handling strategy: stop | skip | continue
+  error_handling: stop
+
+  stages:
+    # Stage A: Download & Extract
+    - stage_a: download
+      enabled: true
+      on_error: stop
+      config: download.yaml
+
+    # Stage B: DAA Multi-class Extraction
+    - stage_b: daa_extraction
+      enabled: true
+      depends_on: [stage_a]
+      on_error: stop
+      config: daa_extraction.yaml
+
+    # Stage C: Binary Conversion
+    - stage_c: binary_conversion
+      enabled: true
+      depends_on: [stage_b]
+      on_error: stop
+      config: binary_conversion.yaml
+
+    # Stage D: StateFarm Splits
+    - stage_d: statefarm_splits
+      enabled: true
+      depends_on: [stage_a]  # Independent of B/C
+      on_error: stop
+      config: statefarm_splits.yaml
+
+    # Stage E: EDA Generation
+    - stage_e: eda
+      enabled: true
+      depends_on: [stage_b, stage_c, stage_d]
+      on_error: skip  # Don't fail pipeline if EDA fails
+      config: eda.yaml
+
+# Processing settings
+processing:
+  max_workers: 8
+  seed: 42
+
+# Logging
+logging:
+  level: INFO
+  log_to_file: true
+  log_file: pipeline.log
+
+# Resume/recovery settings
+recovery:
+  enabled: true
+  checkpoint_file: pipeline_checkpoint.json
+  # Skip completed stages on resume
+  skip_completed: true
+
+# Notifications (optional)
+notifications:
+  enabled: false
+  on_completion: false
+  on_failure: true
+  email: null

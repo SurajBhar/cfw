@@ -1,0 +1,41 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+experiment_name: cfw-train-cfw-ddp-2nodes
+code: ../../
+command: >-
+  python scripts/train.py
+  trainer=ddp_multi_node
+  experiment=statefarm_multiclass_smoke_cfw_dinov2_vitb14
+  model.freeze_backbone=true
+  dataset.train_dir=${{inputs.dataset}}/train
+  dataset.val_dir=${{inputs.dataset}}/val
+  dataset.test_dir=${{inputs.dataset}}/test
+  dataloader.cfw.cfw_train_only=true
+  dataloader.cfw.use_distributed_sampler=true
+  dataloader.baseline.distributed_eval=true
+  dataloader.cfw.train_feature_file=${{inputs.features}}/features/train/features.pkl
+  dataloader.cfw.train_label_file=${{inputs.features}}/features/train/labels.pkl
+  dataloader.cfw.train_img_path_file=${{inputs.features}}/features/train/image_paths.pkl
+  trainer.num_epochs=10
+environment: azureml:cfw-dinov2-cu118:2
+compute: azureml:cfwcluster
+resources:
+  instance_count: 2
+distribution:
+  type: pytorch
+  process_count_per_instance: 1
+inputs:
+  dataset:
+    type: uri_folder
+    path: azureml:cfw_statefarm_imbalanced_multiclass_smoke:20260219.2
+    mode: download
+  features:
+    type: uri_folder
+    path: azureml:cfw_statefarm_imbalanced_multiclass_smoke_vit_h14_features:20260219.1
+    mode: download
+outputs:
+  trained_artifacts:
+    type: uri_folder
+    mode: rw_mount
+environment_variables:
+  CFW_ENABLE_MLFLOW: "true"
+  CFW_FEATURES_MOUNT_DIR: ${{inputs.features}}/features/train

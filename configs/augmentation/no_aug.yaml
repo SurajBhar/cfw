@@ -1,0 +1,32 @@
+# No Augmentation Configuration
+# Only resize and normalize (for evaluation and linear probing)
+
+name: no_aug
+augmentation_type: none
+
+# Training transforms (same as eval)
+train:
+  resize: ${dataset.image_size}
+  interpolation: bicubic
+
+  # No augmentations
+  random_resized_crop: false
+  horizontal_flip: false
+  vertical_flip: false
+  color_jitter: false
+  gaussian_blur: false
+
+  # Normalization (always applied)
+  normalize:
+    mean: ${dataset.mean}
+    std: ${dataset.std}
+
+# Evaluation transforms
+eval:
+  resize: ${dataset.image_size}
+  interpolation: bicubic
+  center_crop: ${dataset.image_size}
+
+  normalize:
+    mean: ${dataset.mean}
+    std: ${dataset.std}

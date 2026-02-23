@@ -1,0 +1,20 @@
+# ResNet-50 Model Configuration (torchvision)
+
+name: resnet50
+model_type: resnet
+
+# Model architecture
+backbone: resnet50
+embedding_dim: 2048
+
+# Classification head
+head_type: linear  # Options: linear, mlp
+hidden_dims: []  # For MLP head: [512, 256]
+dropout: 0.0
+
+# Model initialization
+pretrained: true
+freeze_backbone: false  # Set to true for linear probing
+
+# Output
+num_classes: ${dataset.num_classes}

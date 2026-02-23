@@ -1,0 +1,28 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+experiment_name: cfw-ray-distributed
+code: ../../
+command: >-
+  bash scripts/ray/launch_azureml_ray.sh
+  --dataset-root "${{inputs.dataset}}"
+  --output-root "${{outputs.hpo_artifacts}}"
+environment: azureml:cfw-dinov2-cu118:2
+compute: azureml:cfwcluster
+resources:
+  instance_count: 2
+distribution:
+  type: mpi
+  process_count_per_instance: 1
+inputs:
+  dataset:
+    type: uri_folder
+    path: azureml:cfw_statefarm_imbalanced_multiclass_smoke:20260219.2
+    mode: ro_mount
+outputs:
+  hpo_artifacts:
+    type: uri_folder
+    mode: rw_mount
+environment_variables:
+  RAY_HEAD_PORT: "6379"
+  RAY_DASHBOARD_PORT: "8265"
+  RAY_NODE_CPUS: "4"
+  RAY_NODE_GPUS: "1"

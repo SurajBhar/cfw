@@ -1,0 +1,74 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+experiment_name: cfw-ingestion-stage-c-single-node
+display_name: derive-binary-single-node
+code: ../../
+command: >-
+  python scripts/data_ingestion/derive_binary.py
+  storage=local
+  processing.max_workers=${{inputs.max_workers}}
+  processing.rename_sequential=${{inputs.rename_sequential}}
+  verification.check_counts=${{inputs.check_counts}}
+  daa_conversions.kinect_color.enabled=${{inputs.enable_kinect_color}}
+  daa_conversions.kinect_color.source=${{inputs.kinect_color_multiclass}}
+  daa_conversions.kinect_color.destination=${{outputs.kinect_color_binary}}
+  daa_conversions.kinect_color.splits=[train,val,test]
+  daa_conversions.kinect_ir.enabled=${{inputs.enable_kinect_ir}}
+  daa_conversions.kinect_ir.source=${{inputs.kinect_ir_multiclass}}
+  daa_conversions.kinect_ir.destination=${{outputs.kinect_ir_binary}}
+  daa_conversions.kinect_ir.splits=[test]
+  daa_conversions.nir_right_top.enabled=${{inputs.enable_nir_right_top}}
+  daa_conversions.nir_right_top.source=${{inputs.nir_right_top_multiclass}}
+  daa_conversions.nir_right_top.destination=${{outputs.nir_right_top_binary}}
+  daa_conversions.nir_right_top.splits=[test]
+  daa_conversions.nir_front.enabled=${{inputs.enable_nir_front}}
+  daa_conversions.nir_front.source=${{inputs.nir_front_multiclass}}
+  daa_conversions.nir_front.destination=${{outputs.nir_front_binary}}
+  daa_conversions.nir_front.splits=[test]
+  storage.paths.artifacts=${{outputs.artifacts}}
+environment: azureml:cfw-dinov2-cu118:2
+compute: azureml:cfwcluster
+resources:
+  instance_count: 1
+inputs:
+  max_workers: 4
+  rename_sequential: false
+  check_counts: false
+  enable_kinect_color: true
+  enable_kinect_ir: true
+  enable_nir_right_top: true
+  enable_nir_front: true
+  kinect_color_multiclass:
+    type: uri_folder
+    path: azureml://datastores/workspaceblobstore/paths/cfw/processed/daa_multiclass_kinect_color/split_0/
+    mode: ro_mount
+  kinect_ir_multiclass:
+    type: uri_folder
+    path: azureml://datastores/workspaceblobstore/paths/cfw/processed/daa_multiclass_kinect_ir/split_0/
+    mode: ro_mount
+  nir_right_top_multiclass:
+    type: uri_folder
+    path: azureml://datastores/workspaceblobstore/paths/cfw/processed/daa_multiclass_nir_right_top/split_0/
+    mode: ro_mount
+  nir_front_multiclass:
+    type: uri_folder
+    path: azureml://datastores/workspaceblobstore/paths/cfw/processed/daa_multiclass_nir_front/split_0/
+    mode: ro_mount
+outputs:
+  kinect_color_binary:
+    type: uri_folder
+    mode: rw_mount
+  kinect_ir_binary:
+    type: uri_folder
+    mode: rw_mount
+  nir_right_top_binary:
+    type: uri_folder
+    mode: rw_mount
+  nir_front_binary:
+    type: uri_folder
+    mode: rw_mount
+  artifacts:
+    type: uri_folder
+    mode: rw_mount
+environment_variables:
+  AZUREML_OUTPUTS_DIR: ${{outputs.artifacts}}
+  CFW_ENABLE_MLFLOW: "false"

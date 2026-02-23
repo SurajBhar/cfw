@@ -1,0 +1,22 @@
+# Hardware Configuration
+# Default settings for data loading and hardware resources
+
+# Number of worker processes for data loading
+# Set to 0 for debugging to avoid multiprocessing issues
+# Recommended: min(4, num_cpu_cores / 2)
+num_workers: 4
+
+# Pin memory for faster GPU transfer
+# Set to True for GPU training, False for CPU training
+pin_memory: true
+
+# Keep workers alive between epochs
+# Reduces startup overhead but uses more memory
+persistent_workers: true
+
+# GPU device ID for single-GPU training
+# Use 0 for first GPU, or 'cpu' for CPU-only training
+device: 0
+
+# Number of GPUs for distributed training
+num_gpus: 1

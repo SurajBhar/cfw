@@ -1,0 +1,33 @@
+# Single GPU Trainer Configuration
+
+name: single_gpu
+mode: single_gpu
+
+# Training parameters
+num_epochs: 100
+gradient_clip_max_norm: null  # Set to a value (e.g., 1.0) to enable gradient clipping
+
+# GPU configuration
+device: "cuda:0"  # Which device to use (e.g., "cuda:0", "cuda:1", or "cpu")
+distributed: false
+scale_lr_with_world_size: false  # No effect in single-GPU mode
+lr_scale_factor: null  # Reserved for compatibility with distributed trainer configs
+
+# Validation
+validate_every: 1  # Run validation every N epochs
+early_stopping:
+  enabled: false
+  patience: 10  # Stop if no improvement for N epochs
+  min_delta: 0.001  # Minimum change to qualify as improvement
+
+# Logging
+log_every: 10  # Log training metrics every N batches
+tensorboard_log_every: 10  # Log to TensorBoard every N batches
+
+# Callbacks
+callbacks:
+  - checkpoint  # Save checkpoints periodically
+  - lr_logger   # Log learning rate
+
+# Mixed precision training
+use_amp: false  # Set to true for automatic mixed precision

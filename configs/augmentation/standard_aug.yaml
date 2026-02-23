@@ -1,0 +1,56 @@
+# Standard Augmentation Configuration
+# Typical augmentations for image classification
+
+name: standard_aug
+augmentation_type: standard
+
+# Training transforms
+train:
+  # Random resized crop
+  random_resized_crop:
+    enabled: true
+    size: ${dataset.image_size}
+    scale: [0.8, 1.0]
+    ratio: [0.9, 1.1]
+    interpolation: bicubic
+
+  # Random horizontal flip
+  horizontal_flip:
+    enabled: true
+    p: 0.5
+
+  # Random vertical flip
+  vertical_flip:
+    enabled: false
+    p: 0.0
+
+  # Color jitter
+  color_jitter:
+    enabled: true
+    brightness: 0.2
+    contrast: 0.2
+    saturation: 0.2
+    hue: 0.1
+    p: 0.5
+
+  # Gaussian blur
+  gaussian_blur:
+    enabled: false
+    kernel_size: [5, 9]
+    sigma: [0.1, 2.0]
+    p: 0.0
+
+  # Normalization
+  normalize:
+    mean: ${dataset.mean}
+    std: ${dataset.std}
+
+# Evaluation transforms (no augmentation)
+eval:
+  resize: ${dataset.image_size}
+  interpolation: bicubic
+  center_crop: ${dataset.image_size}
+
+  normalize:
+    mean: ${dataset.mean}
+    std: ${dataset.std}
